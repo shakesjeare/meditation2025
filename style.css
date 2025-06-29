@@ -1,0 +1,229 @@
+/* 基础样式设置 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* 基础body样式 */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    overflow: hidden;
+    position: relative;
+}
+
+/* 显示开始UI时的body样式 */
+body.show-start-ui {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-image: url('https://cdn.glitch.global/c1c0df0e-61a7-404f-a219-3a71bf1341e1/ChenYao_YoYo__beautiful_cloud_childrens_book_illustration_blue__6cfd223b-d47b-44d0-9a29-3b0911d9dc08.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+/* VR场景样式 */
+a-scene {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+a-scene[style*="display: none"] {
+    visibility: hidden;
+    pointer-events: none;
+}
+
+/* 开始UI样式 */
+.start-ui {
+    position: fixed;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: rgba(68, 68, 68, 0.5);
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    backdrop-filter: blur(5px);
+    max-width: 90%;
+    width: auto;
+    transition: opacity 0.3s ease;
+}
+
+/* 标题样式 */
+.title {
+    font-size: 40px;
+    color: #ffffff;
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    font-weight: bold;
+    letter-spacing: 2px;
+}
+
+/* 描述文本样式 */
+.description {
+    font-weight: bold;
+    color: #ffffff;
+    margin-bottom: 10px;
+    font-size: 18px;
+    line-height: 1.4;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* 警告文本样式 */
+.warning {
+    font-weight: 300;
+    color: #ffffff;
+    margin-bottom: 20px;
+    line-height: 1.5;
+    font-style: italic;
+    font-size: 16px;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+    padding: 10px;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* 按钮容器样式 */
+.language-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+/* 按钮样式 */
+.language-buttons button {
+    background-color: #e43b5e;
+    color: #ffffff;
+    border: none;
+    padding: 12px 24px;
+    font-size: 18px;
+    cursor: pointer;
+    margin: 5px;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* 按钮悬停效果 */
+.language-buttons button:hover {
+    background-color: #ff5b7e;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* 按钮点击效果 */
+.language-buttons button:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* 加载指示器样式 */
+.loading-indicator {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 9999;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    display: none;
+}
+
+
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .title {
+        font-size: 32px;
+    }
+
+    .description {
+        font-size: 16px;
+    }
+
+    .warning {
+        font-size: 14px;
+    }
+
+    .language-buttons button {
+        padding: 10px 20px;
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .title {
+        font-size: 28px;
+    }
+
+    .start-ui {
+        padding: 15px;
+    }
+
+    .language-buttons button {
+        padding: 8px 16px;
+        font-size: 14px;
+    }
+}
+
+/* 动画效果 */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.start-ui {
+    animation: fadeIn 0.5s ease-out;
+}
+
+/* VR模式相关样式 */
+.vr-mode-active {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+}
+
+/* 禁用状态样式 */
+.disabled {
+    opacity: 0.5;
+    pointer-events: none;
+    cursor: not-allowed;
+}
+
+/* 辅助功能样式 */
+@media (prefers-reduced-motion: reduce) {
+    .start-ui {
+        animation: none;
+    }
+
+    .language-buttons button {
+        transition: none;
+    }
+}
+
+/* 焦点样式 */
+.language-buttons button:focus {
+    outline: 3px solid #ffffff;
+    outline-offset: 2px;
+}
+

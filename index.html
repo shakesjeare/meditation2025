@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>REMEMBER ME - A VR Journey</title>
+    <meta
+      name="description"
+      content="A VR Journey for Mindful Commemoration and Meditation"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="style.css" />
+    <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.0.0/dist/aframe-extras.min.js"></script>
+    <script src="ui.js" defer></script>
+    <script src="butterfly.js"></script>
+    <script src="seed-box-controller.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-physics-system@v4.0.1/dist/aframe-physics-system.min.js"></script>
+
+    <!-- 修复控制器事件监听 -->
+    <script>
+      // 全局控制器事件转发组件
+      AFRAME.registerComponent("controller-event-forwarder", {
+        init: function () {
+          console.log("Controller event forwarder initialized");
+
+          // 为Oculus Touch控制器添加额外事件监听
+          this.el.addEventListener(
+            "triggerdown",
+            this.onTriggerDown.bind(this)
+          );
+          this.el.addEventListener("triggerup", this.onTriggerUp.bind(this));
+          this.el.addEventListener(
+            "thumbstickdown",
+            this.onThumbstickDown.bind(this)
+          );
+
+          // 监听Oculus按钮事件 (A/B/X/Y按钮)
+          this.el.addEventListener("abuttondown", this.onButtonDown.bind(this));
+          this.el.addEventListener("bbuttondown", this.onButtonDown.bind(this));
+          this.el.addEventListener("xbuttondown", this.onButtonDown.bind(this));
+          this.el.addEventListener("ybuttondown", this.onButtonDown.bind(this));
+        },
+
+        onTriggerDown: function (evt) {
+          console.log("Trigger down detected on", this.el.id);
+
+          // 查找当前被射线击中的元素
+          const raycaster = this.el.components.raycaster;
+          if (
+            raycaster &&
+            raycaster.intersectedEls &&
+            raycaster.intersectedEls.length > 0
+          ) {
+            const hitElement = raycaster.intersectedEls[0];
+            console.log("Trigger pressed while pointing at:", hitElement.id);
+
+            // 手动触发事件
+            hitElement.emit(
+              "controller-trigger",
+              { controller: this.el },
+              false
+            );
+          }
+        },
+
+        onTriggerUp: function (evt) {
+          console.log("Trigger up detected on", this.el.id);
+        },
+
+        onThumbstickDown: function (evt) {
+          console.log("Thumbstick pressed on", this.el.id);
+        },
+
+        onButtonDown: function (evt) {
+          console.log("Button pressed:", evt.type, "on", this.el.id);
+        },
+      });
+    </script>
+  </head>
+  <body class="show-start-ui">
+    <div id="start-ui" class="start-ui">
+      <h1 class="title">REMEMBER ME</h1>
+      <p class="description">
+        A VR Journey for Mindful Commemoration and Meditation.
+      </p>
+      <p class="warning">
+        Some stories in the experience may trigger sadness.<br />
+        If you recently lost someone, skip parts that may upset you.
+      </p>
+
+      <div class="language-buttons">
+        <button onclick="startExperience('Start Journey')">
+          Continue Journey
+        </button>
+      </div>
+    </div>
+
+    <a-scene
+      id="vr-scene"
+      style="display: none; visibility: hidden"
+      vr-mode-ui="enabled: true"
+      webxr="requiredFeatures: local-floor"
+      loading-screen="dotsColor: white; backgroundColor: black"
+      raycaster="objects: .clickable"
+    >
+      <!-- 调试相机 -->
+      <a-entity
+        camera="userHeight: 1.66"
+        position="0 1.8 0"
+        look-controls
+        wasd-controls
+        debug-log
+      >
+      </a-entity>
+
+      <a-assets>
+        <audio
+          id="background-music"
+          src="https://cdn.glitch.global/5b4ab658-5a00-464b-9b21-67967fbfc6d6/bgm_1.mp3"
+          preload="auto"
+        ></audio>
+        <audio
+          id="narration1"
+          src="https://cdn.glitch.global/5b4ab658-5a00-464b-9b21-67967fbfc6d6/111.mp3"
+          preload="auto"
+        ></audio>
+        <audio
+          id="narration2"
+          src="https://cdn.glitch.me/5b4ab658-5a00-464b-9b21-67967fbfc6d6/Coping%20with%20Grief_%202.mp3"
+        ></audio>
+      </a-assets>
+
+      <!-- 修复后的VR控制器 -->
+      <a-entity
+        id="leftHand"
+        laser-controls="hand: left"
+        raycaster="objects: .clickable; lineColor: #FF5733; lineOpacity: 0.7; far: 20; showLine: true"
+        controller-event-forwarder
+      >
+      </a-entity>
+
+      <a-entity
+        id="rightHand"
+        laser-controls="hand: right"
+        raycaster="objects: .clickable; lineColor: #FF5733; lineOpacity: 0.7; far: 20; showLine: true"
+        controller-event-forwarder
+      >
+      </a-entity>
+
+      <a-asset-items
+        id="island"
+        src="https://cdn.glitch.global/5b4ab658-5a00-464b-9b21-67967fbfc6d6/sky.glb"
+      >
+      </a-asset-items>
+
+      <a-asset-items
+        id="floatingisland"
+        src="https://cdn.glitch.global/5b4ab658-5a00-464b-9b21-67967fbfc6d6/islandfloat.glb"
+      >
+      </a-asset-items>
+
+      <a-entity id="meditation-environment" visible="true">
+        <!-- 冥想场景的内容 -->
+        <a-entity
+          id="meditation-island"
+          gltf-model="#island"
+          animation-mixer=""
+          scale="1 1 "
+          position="0 -1 0"
+          rotation="0 0 0"
+        ></a-entity>
+      </a-entity>
+
+      <a-entity id="environment" visible="true">
+        <a-entity
+          id="field"
+          gltf-model="https://cdn.glitch.global/5b4ab658-5a00-464b-9b21-67967fbfc6d6/field2.glb"
+          animation-mixer="loop: repeat; clampWhenFinished: false; timeScale: 1"
+          scale="9.2 9.2 9.2"
+          position="0 -3 0.5"
+          rotation="0 0 0"
+        ></a-entity>
+      </a-entity>
+
+      <a-entity id="tree" visible="true">
+        <a-entity
+          id="tree1"
+          gltf-model="https://cdn.glitch.global/5b4ab658-5a00-464b-9b21-67967fbfc6d6/morning.glb?v=1740989253230"
+          animation-mixer="loop: repeat; clampWhenFinished: false; timeScale: 1"
+          scale="9.2 9.2 9.2"
+          position="0 0.5 0.5"
+          rotation="0 30 0"
+        ></a-entity>
+      </a-entity>
+
+      <a-entity
+        id="butterfly"
+        gltf-model="https://cdn.glitch.global/5b4ab658-5a00-464b-9b21-67967fbfc6d6/butterfly.glb?v=1740987578674"
+        animation-mixer="loop: repeat"
+        scale="0.1 0.1 0.1"
+        butterfly-flight="radius: 2.5; speed: 0.5; baseHeight: 1.8; heightVariation: 0.2; verticalSpeed: 1.5"
+      ></a-entity>
+
+      <!-- 将 Tele、种子和粒子效果整合到一个容器里 -->
+      <a-entity id="seed-container" position="0 0 -3">
+        <!-- 外部 box 容器 - 用于交互和动画控制 -->
+        <a-box
+          id="seed-box"
+          class="clickable"
+          position="0 0 0"
+          color="#00ff00"
+          opacity="0"
+          depth="0.5"
+          height="0.5"
+          width="0.5"
+          seed-box-controller="
+           startY: 0.1;
+           finalY: 1.7;
+           initialDelay: 2000;
+           teleAnimDuration: 3000;
+           riseDuration: 5000;
+           dropDuration: 2000;
+           dropDistance: 5"
+        >
+          <!-- 种子模型 -->
+          <a-entity
+            id="seed2"
+            class="clickable"
+            gltf-model="https://cdn.glitch.global/5b4ab658-5a00-464b-9b21-67967fbfc6d6/seed1.glb"
+            scale="1.5 1.5 1.5"
+            position="0 -0.5 -1"
+            rotation="0 30 0"
+          >
+          </a-entity>
+
+          <!-- 种子光源 -->
+          <a-entity
+            id="seedLight2"
+            light="type: point; intensity: 1; distance: 50; decay: 2"
+            position="0 0 -1"
+          >
+          </a-entity>
+        </a-box>
+
+        <!-- Tele (传送) 模型 -->
+        <a-entity
+          id="tele2"
+          gltf-model="https://cdn.glitch.global/5b4ab658-5a00-464b-9b21-67967fbfc6d6/tele.glb"
+          animation-mixer="loop: once; clampWhenFinished: false; timeScale: 1"
+          animation__fadeout="property: material.opacity; from: 1; to: 0; dur: 3000; easing: easeOutQuad; startEvents: start-fadeout"
+          scale="0.5 0.5 0.5"
+          position="0 -1.5 -1"
+          rotation="0 30 0"
+        >
+        </a-entity>
+
+        <!-- 粒子效果 -->
+        <a-entity id="teleseed2">
+          <a-entity
+            id="teleseed22"
+            gltf-model="https://cdn.glitch.global/5b4ab658-5a00-464b-9b21-67967fbfc6d6/particle1.glb"
+            animation-mixer=""
+            scale="0.5 0.5 0.5"
+            position="0 1.5 -4"
+            rotation="0 0 0"
+            visible="false"
+          >
+          </a-entity>
+          <a-entity
+            id="teleseedLight2"
+            light="type: point; intensity: 3; distance: 50; decay: 2"
+            position="0 3 0"
+          >
+          </a-entity>
+        </a-entity>
+      </a-entity>
+
+      <a-entity
+        id="flowers-container"
+        scale="1.35 1.35 1.35"
+        position="0 -3.6 3"
+        animation__rise="property: position.y; from: -2; to: -0.95; dur: 5000; easing: easeOutQuad; startEvents: flowers-rise"
+      >
+        <a-entity
+          id="growing-sound"
+          sound="src: https://cdn.glitch.global/5b4ab658-5a00-464b-9b21-67967fbfc6d6/plant_growing.mp3; 
+           autoplay: false; 
+           loop: false;
+           volume: 1.5;
+           poolSize: 1;
+           maxDistance: 20;
+           refDistance: 5;"
+        ></a-entity>
+
+        <!-- 原有的10朵花 -->
+        <a-entity
+          id="flower1"
+          gltf-model="https://cdn.glitch.global/5b4ab658-5a00-464b-9b21-67967fbfc6d6/blooming_hibiscus_time-lapse_animation.glb"
+          animation-mixer="clampWhenFinished: true; loop: once; timeScale: 1"
+          position="0.14244 1.1 -3"
+          rotation="0 -90 0"
+        ></a-entity>
+
+        <a-entity
+          id="flower2"
+          gltf-model="https://cdn.glitch.global/5b4ab658-5a00-464b-9b21-67967fbfc6d6/blooming_hibiscus_time-lapse_animation.glb"
+          animation-mixer="clampWhenFinished: true; loop: once; timeScale: 0"
+          position="0.62096 1.1 -3.48204"
+          rotation="0 -90 0"
+        ></a-entity>
+
+        <a-entity
+          id="flower3"
+          gltf-model="https://cdn.glitch.global/5b4ab658-5a00-464b-9b21-67967fbfc6d6/blooming_hibiscus_time-lapse_animation.glb"
+          animation-mixer="clampWhenFinished: true; loop: once; timeScale: 0"
+          position="-0.67662 1.1 -2.71515"
+          rotation="0 -70 0"
+        ></a-entity>
+
+        <a-entity
+          id="flower4"
+          gltf-model="https://cdn.glitch.global/5b4ab658-5a00-464b-9b21-67967fbfc6d6/blooming_hibiscus_time-lapse_animation.glb"
+          animation-mixer="clampWhenFinished: true; loop: once; timeScale: 0"
+          position="-0.79697 1.1 -4.16587"
+          rotation="0 -90 0"
+        ></a-entity>
+
+        <a-entity
+          id="flower5"
+          gltf-model="https://cdn.glitch.global/5b4ab658-5a00-464b-9b21-67967fbfc6d6/blooming_hibiscus_time-lapse_animation.glb"
+          animation-mixer="clampWhenFinished: true; loop: once; timeScale: 0"
+          position="0.40943 1.1 -3.95872"
+          rotation="0 -90 0"
+        ></a-entity>
+
+        <a-entity
+          id="flower6"
+          gltf-model="https://cdn.glitch.global/5b4ab658-5a00-464b-9b21-67967fbfc6d6/blooming_hibiscus_time-lapse_animation.glb"
+          animation-mixer="clampWhenFinished: true; loop: once; timeScale: 0"
+          position="-0.24365 1.1 -3.343"
+          rotation="0 -90 0"
+        ></a-entity>
+
+        <a-entity
+          id="flower7"
+          gltf-model="https://cdn.glitch.global/5b4ab658-5a00-464b-9b21-67967fbfc6d6/blooming_hibiscus_time-lapse_animation.glb"
+          animation-mixer="clampWhenFinished: true; loop: once; timeScale: 0"
+          position="1.02417 1.1 -3.343"
+          rotation="0 -100 0"
+        ></a-entity>
+
+        <a-entity
+          id="flower9"
+          gltf-model="https://cdn.glitch.global/5b4ab658-5a00-464b-9b21-67967fbfc6d6/blooming_hibiscus_time-lapse_animation.glb"
+          animation-mixer="clampWhenFinished: true; loop: once; timeScale: 0"
+          position="-0.15607 1.1 -4.63279"
+          rotation="0 -90 0"
+        ></a-entity>
+
+        <a-entity
+          id="flower10"
+          gltf-model="https://cdn.glitch.global/5b4ab658-5a00-464b-9b21-67967fbfc6d6/blooming_hibiscus_time-lapse_animation.glb"
+          animation-mixer="clampWhenFinished: true; loop: once; timeScale: 0"
+          position="1.70251 1.1 -3.6171"
+          rotation="0 -120 0"
+        ></a-entity>
+
+        <a-entity
+          id="flower11"
+          gltf-model="https://cdn.glitch.global/5b4ab658-5a00-464b-9b21-67967fbfc6d6/blooming_hibiscus_time-lapse_animation.glb"
+          animation-mixer="clampWhenFinished: true; loop: once; timeScale: 0"
+          position="-1.25842 1.1 -3.17681"
+          rotation="0 -80 0"
+        ></a-entity>
+
+
+        <a-entity
+          id="teleseed3"
+          gltf-model="https://cdn.glitch.global/5b4ab658-5a00-464b-9b21-67967fbfc6d6/appearance_effect_starlight.glb"
+          animation-mixer=""
+          scale="1 1 1"
+          position="0 0 -3.5"
+          rotation="0 0 0"
+          visible="true"
+        >
+        </a-entity>
+        <a-entity
+  id="blooming-sound"
+  sound="src: https://cdn.glitch.global/5b4ab658-5a00-464b-9b21-67967fbfc6d6/plant_growing.mp3; 
+   autoplay: false; 
+   loop: false;
+   volume: 0.5;
+   poolSize: 1;
+   maxDistance: 20;
+   refDistance: 5;"
+></a-entity>
+      </a-entity>
+      
+      
+
+      <!-- 可以添加其他冥想场景特有的元素 -->
+      
+      <a-sound
+        id="background-sound"
+        src="#background-music"
+        autoplay="true"
+        loop="true"
+        position="0 1.6 -1"
+        volume="0.7"
+      ></a-sound>
+      <a-sound
+        id="narration-sound-1"
+        src="#narration1"
+        autoplay="true"
+        position="0 1.6 -1"
+        volume="1.5"
+      ></a-sound>
+      <a-sound
+        id="narration-sound-2"
+        src="#narration2"
+        autoplay="false"
+        position="0 1.6 -1"
+        volume="1.0"
+      ></a-sound>
+
+      <a-entity
+        light="decay: 2; intensity: 5; type: point"
+        position="-0.16536 1.14817 -2.26404"
+      ></a-entity>
+
+      <a-entity
+        light="decay: 2; intensity: 4; type: point"
+        position="0.48732 1.46202 -3.10852"
+        scale="2 2 2"
+      ></a-entity>
+    </a-scene>
+  </body>
+</html>
